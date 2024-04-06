@@ -1,5 +1,5 @@
 {
-	"name": "svelte-headless-table",
+	"name": "@simplyprint/svelte-headless-table",
 	"description": "Unopinionated and extensible data tables for Svelte",
 	"version": "0.17.5",
 	"scripts": {
@@ -17,6 +17,10 @@
 	"repository": {
 		"type": "git",
 		"url": "git+ssh://git@github.com/bryanmylee/svelte-headless-table.git"
+	},
+	"publishConfig": {
+		"access": "restricted",
+		"registry": "https://npm.pkg.github.com"
 	},
 	"keywords": [
 		"svelte",
