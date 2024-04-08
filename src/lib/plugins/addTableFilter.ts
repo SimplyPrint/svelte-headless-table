@@ -21,7 +21,7 @@ export interface TableFilterState<Item> {
 export interface TableFilterColumnOptions<Item> {
 	exclude?: boolean;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	getFilterValue?: (value: any) => string;
+	getFilterValue?: (props: {cell: any, value: any}) => string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -84,12 +84,16 @@ const getFilteredRows = <Item, Row extends BodyRow<Item>>(
 				if (isHidden && !includeHiddenColumns) {
 					return false;
 				}
-				if (!cell.isData()) {
+				if (!cell.isData() && !options?.getFilterValue) {
+					// Don't allow non-data-fields, _unless_ there's a "getFilterValue" method defined.
 					return false;
 				}
-				let value = cell.value;
+				let value = cell.isData() ? cell.value : null;
 				if (options?.getFilterValue !== undefined) {
-					value = options?.getFilterValue(value);
+					value = options?.getFilterValue({cell, value});
+				}
+				if (value === null) {
+					return false;
 				}
 
 				const matches = fn({ value: String(value), filterValue, row });

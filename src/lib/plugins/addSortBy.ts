@@ -23,7 +23,7 @@ export interface SortByState<Item> {
 export interface SortByColumnOptions {
 	disable?: boolean;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	getSortValue?: (value: any) => string | number | (string | number)[];
+	getSortValue?: (props: {cell: any, value: any}) => string | number | (string | number)[];
 	invert?: boolean;
 }
 
@@ -121,14 +121,17 @@ const getSortedRows = <Item, Row extends BodyRow<Item>>(
 			// Only need to check properties of `cellA` as both should have the same
 			// properties.
 			const getSortValue = columnOptions[key.id]?.getSortValue;
-			if (!cellA.isData()) {
+
+			if (!cellA.isData() && !getSortValue) {
+				// Don't allow non-data-fields, _unless_ there's a "getSortValue" method defined.
 				return 0;
 			}
-			const valueA = cellA.value;
-			const valueB = (cellB as DataBodyCell<Item>).value;
+
+			const valueA = cellA.isData() ? cellA.value : 0;
+			const valueB = cellB.isData() ? (cellB as DataBodyCell<Item>).value : 0;
 			if (getSortValue !== undefined) {
-				const sortValueA = getSortValue(valueA);
-				const sortValueB = getSortValue(valueB);
+				const sortValueA = getSortValue({value: valueA, cell: cellA});
+				const sortValueB = getSortValue({value: valueB, cell: cellB});
 				order = compare(sortValueA, sortValueB);
 			} else if (typeof valueA === 'string' || typeof valueA === 'number') {
 				// typeof `cellB.value` is logically equal to `cellA.value`.
@@ -202,7 +205,7 @@ export const addSortBy =
 					const props = derived(sortKeys, ($sortKeys) => {
 						const key = $sortKeys.find((k) => k.id === cell.id);
 						const toggle = (event: Event) => {
-							if (!cell.isData()) return;
+							//if (!cell.isData()) return;
 							if (disabled) return;
 							sortKeys.toggleId(cell.id, {
 								multiSort: disableMultiSort ? false : isMultiSortEvent(event),
@@ -210,7 +213,7 @@ export const addSortBy =
 							});
 						};
 						const clear = () => {
-							if (!cell.isData()) return;
+							//if (!cell.isData()) return;
 							if (disabledSortIds.includes(cell.id)) return;
 							sortKeys.clearId(cell.id);
 						};
