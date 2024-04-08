@@ -76,7 +76,12 @@ const getFilteredRows = <Item, Row extends BodyRow<Item>>(
 			}
 			// An array of booleans, true if the cell matches the filter.
 			const rowCellMatches = Object.values(row.cellForId).map((cell) => {
-				const options = columnOptions[cell.id] as TableFilterColumnOptions<Item> | undefined;
+				let options = columnOptions[cell.id] as TableFilterColumnOptions<Item> | undefined;
+				if (!options) {
+					// Temp. bugfix... Sometimes doesn't get the column options for some reason!
+					options = cell.column?.plugins?.filter ?? undefined;
+				}
+
 				if (options?.exclude === true) {
 					return false;
 				}
