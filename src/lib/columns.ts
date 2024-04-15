@@ -9,6 +9,7 @@ export interface ColumnInit<Item, Plugins extends AnyPlugins = AnyPlugins> {
 	footer?: HeaderLabel<Item, Plugins>;
 	height: number;
 	plugins?: PluginColumnConfigs<Plugins>;
+	skeletonCell?: object;
 }
 
 export class Column<Item, Plugins extends AnyPlugins = AnyPlugins> {
@@ -16,11 +17,13 @@ export class Column<Item, Plugins extends AnyPlugins = AnyPlugins> {
 	footer?: HeaderLabel<Item, Plugins>;
 	height: number;
 	plugins?: PluginColumnConfigs<Plugins>;
-	constructor({ header, footer, height, plugins }: ColumnInit<Item, Plugins>) {
+	skeletonCell?: object;
+	constructor({ header, footer, height, plugins, skeletonCell }: ColumnInit<Item, Plugins>) {
 		this.header = header;
 		this.footer = footer;
 		this.height = height;
 		this.plugins = plugins;
+		this.skeletonCell = skeletonCell;
 	}
 
 	// TODO Workaround for https://github.com/vitejs/vite/issues/9528
@@ -87,6 +90,7 @@ export type DataColumnInitBase<
 	Value = unknown
 > = Omit<ColumnInit<Item, Plugins>, 'height'> & {
 	cell?: DataLabel<Item, Plugins, Value>;
+	skeletonCell?: object;
 };
 
 export type DataColumnInitKey<Item, Id extends keyof Item> = {
@@ -114,7 +118,7 @@ export class DataColumn<
 > extends FlatColumn<Item, Plugins, Id> {
 	// TODO Workaround for https://github.com/vitejs/vite/issues/9528
 	__data = true;
-
+	skeletonCell?: object;
 	cell?: DataLabel<Item, Plugins, Value>;
 	accessorKey?: keyof Item;
 	accessorFn?: (item: Item) => Value;
@@ -123,11 +127,13 @@ export class DataColumn<
 		footer,
 		plugins,
 		cell,
+		skeletonCell,
 		accessor,
 		id,
 	}: DataColumnInit<Item, Plugins, Id, Value>) {
 		super({ header, footer, plugins, id: 'Initialization not complete' });
 		this.cell = cell;
+		this.skeletonCell = skeletonCell;
 		if (accessor instanceof Function) {
 			this.accessorFn = accessor;
 		} else {
@@ -164,6 +170,7 @@ export type DisplayColumnInit<
 	Id extends string = any
 > = FlatColumnInit<Item, Plugins, Id> & {
 	cell: DisplayLabel<Item, Plugins>;
+	skeletonCell?: object;
 	data?: DisplayColumnDataGetter<Item, Plugins>;
 };
 
